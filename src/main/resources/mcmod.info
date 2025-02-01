@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "aeiromod",
+    "name": "Aeiro Mod",
+    "description": "A minecraft mod that automates carries, tracks progress, and includes custom triggers in chat.",
+    "version": "1.2,1",
+    "mcversion": "1.8.9",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["TechnoJ"],
+    "credits": "Thanks to Forge and FML for their modding framework.",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
