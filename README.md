@@ -6,7 +6,8 @@
 
 AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an adaptive in-game GUI for managing carries, auto-responders, and other settings. The mod also features an auto-remove semicolons option and smart chat interception.
 
-----AI CONTENT DISCLAIMER----
+## AI CONTENT DISCLAIMER
+
 **I use AI to help code AeiroMod. If you have a problem with this, feel free not to use my mod**
 
 ## Features
