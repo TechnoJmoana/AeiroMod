@@ -37,7 +37,7 @@ AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an
    - Skip if you don't want to build the JAR file manually
    - Clone the repository:
      ```bash
-     git clone https://github.com/yourusername/AeiroMod.git
+     git clone https://github.com/TechnoJmoana/AeiroMod.git
      ```
    - Open the project in your preferred Java IDE (e.g., Eclipse or IntelliJ IDEA).
    - Ensure you have Minecraft Forge 1.8.9 and its dependencies set up.
