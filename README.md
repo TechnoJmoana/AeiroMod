@@ -30,10 +30,11 @@ AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an
 - **Enhanced Chat Screen:**  
   A custom chat screen (`MyGuiChat`) that intercepts outgoing commands, pre-populates the slash (/) when needed, and processes auto-responses.
 
-## Installation
+## Build and Installation
 
 1. **Download & Build:**
 
+   - Skip if you don't want to build the JAR file manually
    - Clone the repository:
      ```bash
      git clone https://github.com/yourusername/AeiroMod.git
@@ -44,7 +45,7 @@ AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an
 
 2. **Install the Mod:**
 
-   - Copy the built JAR file into your Minecraft `mods` folder.
+   - Copy the built JAR file (or the most recent JAR file in releases) into your Minecraft `mods` folder.
    - Launch Minecraft with Forge 1.8.9.
 
 ## Usage
