@@ -1,10 +1,14 @@
 # AeiroMod
 
-**Version:** 1.2.1  
+**Version:** 1.2.2  
 **Minecraft Version:** 1.8.9  
-**Author:** YourName
+**Author:** TechnoJ
 
 AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an adaptive in-game GUI for managing carries, auto-responders, and other settings. The mod also features an auto-remove semicolons option and smart chat interception.
+
+## AI CONTENT DISCLAIMER
+
+**I use AI to help code AeiroMod. If you have a problem with this, feel free not to use my mod**
 
 ## Features
 
@@ -26,13 +30,14 @@ AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an
 - **Enhanced Chat Screen:**  
   A custom chat screen (`MyGuiChat`) that intercepts outgoing commands, pre-populates the slash (/) when needed, and processes auto-responses.
 
-## Installation
+## Build and Installation
 
 1. **Download & Build:**
 
+   - Skip if you don't want to build the JAR file manually
    - Clone the repository:
      ```bash
-     git clone https://github.com/yourusername/AeiroMod.git
+     git clone https://github.com/TechnoJmoana/AeiroMod.git
      ```
    - Open the project in your preferred Java IDE (e.g., Eclipse or IntelliJ IDEA).
    - Ensure you have Minecraft Forge 1.8.9 and its dependencies set up.
@@ -40,7 +45,7 @@ AeiroMod is a lightweight Minecraft mod that provides chat-based commands and an
 
 2. **Install the Mod:**
 
-   - Copy the built JAR file into your Minecraft `mods` folder.
+   - Copy the built JAR file (or the most recent JAR file in releases) into your Minecraft `mods` folder.
    - Launch Minecraft with Forge 1.8.9.
 
 ## Usage
