@@ -43,6 +43,7 @@ import java.util.Queue;
  * - In-GUI notifications that disappear after ~2 seconds.
  * - Auto-remove semicolons feature.
  * - Delayed mod messages: AeiroMod's responses now appear one tick after your chat command.
+ * - Slash pre-population fix: When opening chat via the slash (/) key, the chat input is pre-filled with "/".
  *
  * IMPORTANT: In older versions the client echoed its own messages so that ? commands
  * were processed via ClientChatReceivedEvent. In the current environment non-slash
@@ -125,6 +126,9 @@ public class AeiroMod {
     public String guiNotification = "";
     private int guiNotificationTimer = 0;
 
+    // Static flag to detect if chat was opened via the slash key
+    private static boolean chatOpenedBySlash = false;
+
     @EventHandler
     public void init(FMLInitializationEvent event) {
         System.out.println("[AeiroMod] Loaded version " + VERSION + " in " + NAME + "!");
@@ -147,9 +151,13 @@ public class AeiroMod {
 
     // --------------------------------------------------------
     // Keybind Event – if the key is pressed, open the mod GUI
+    // Also detect if slash key was pressed.
     // --------------------------------------------------------
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent ev) {
+        if (Keyboard.getEventKey() == Keyboard.KEY_SLASH && Keyboard.getEventKeyState()) {
+            chatOpenedBySlash = true;
+        }
         if (keyOpenGui.isPressed()) {
             openGui();
         }
@@ -161,7 +169,6 @@ public class AeiroMod {
     @SubscribeEvent
     public void onInitGui(GuiScreenEvent.InitGuiEvent.Post e) {
         if (e.gui instanceof GuiChat && !(e.gui instanceof MyGuiChat)) {
-            // Retrieve the default text from the original GuiChat (this will be "/" if slash was pressed)
             GuiChat oldChat = (GuiChat) e.gui;
             String defaultText = "";
             try {
@@ -171,13 +178,19 @@ public class AeiroMod {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            // If the flag is set and the default text is empty, force a slash
+            if (chatOpenedBySlash && defaultText.isEmpty()) {
+                defaultText = "/";
+            }
+            // Reset the flag for subsequent chat openings
+            chatOpenedBySlash = false;
             Minecraft.getMinecraft().displayGuiScreen(new MyGuiChat(defaultText));
         }
     }
 
     // --------------------------------------------------------
     // Custom Chat Screen Subclass – intercept outgoing "?" commands
-    // and also process auto-remove semicolons for non-command messages.
+    // and process auto-remove semicolons for non-command messages.
     // --------------------------------------------------------
     @SideOnly(Side.CLIENT)
     public class MyGuiChat extends GuiChat {
@@ -233,7 +246,7 @@ public class AeiroMod {
         else if (lower.contains("?finished") || lower.contains("?f")) {
             handleFinishedCommand();
         }
-        else if (lower.contains("?list") || lower.contains("?l")) { // Removed trailing space check.
+        else if (lower.contains("?list") || lower.contains("?l")) {
             handleListCommand();
         }
         else if (lower.contains("?help") || lower.contains("?h")) {
@@ -759,7 +772,6 @@ public class AeiroMod {
                 else if (line.startsWith("autoCarryMode=")) {
                     autoCarryMode = "true".equalsIgnoreCase(line.substring("autoCarryMode=".length()).trim());
                 }
-                // --- New: load autoRemoveSemicolons ---
                 else if (line.startsWith("autoRemoveSemicolons=")) {
                     autoRemoveSemicolons = "true".equalsIgnoreCase(line.substring("autoRemoveSemicolons=".length()).trim());
                 }
@@ -791,7 +803,6 @@ public class AeiroMod {
             pw.println("bio=" + userBio);
             pw.println("carryMode=" + (carryMode ? "true" : "false"));
             pw.println("autoCarryMode=" + (autoCarryMode ? "true" : "false"));
-            // --- New: save autoRemoveSemicolons ---
             pw.println("autoRemoveSemicolons=" + (autoRemoveSemicolons ? "true" : "false"));
             Iterator<Map.Entry<String, ResponderData>> it = customResponders.entrySet().iterator();
             while(it.hasNext()){
@@ -820,7 +831,6 @@ public class AeiroMod {
     public boolean isCarryMode() { return carryMode; }
     public void setCarryMode(boolean b) { setCarryMode(b, true); }
     public boolean isAutoCarryMode() { return autoCarryMode; }
-    // Overload with two parameters
     public void setAutoCarryMode(boolean b, boolean notify) {
         autoCarryMode = b;
         saveConfig();
