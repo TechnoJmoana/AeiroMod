@@ -36,12 +36,13 @@ import java.util.Queue;
 
 /**
  * AeiroMod 1.8.9
- * Version 1.2.1
+ * Version 1.2.2
  *
  * Features:
  * - Chat-based commands: type e.g. "?carry ..." in chat and the mod replies.
  * - In-GUI notifications that disappear after ~2 seconds.
  * - Auto-remove semicolons feature.
+ * - Delayed mod messages: AeiroMod's responses now appear one tick after your chat command.
  *
  * IMPORTANT: In older versions the client echoed its own messages so that ? commands
  * were processed via ClientChatReceivedEvent. In the current environment non-slash
@@ -58,13 +59,10 @@ import java.util.Queue;
 public class AeiroMod {
     public static final String MODID   = "aeiromod";
     public static final String NAME    = "Aeiro Mod";
-    public static final String VERSION = "1.2.1";
+    public static final String VERSION = "1.2.2";
 
     // Configuration file name
     private static final String CONFIG_FILE_NAME = "aeiromod.cfg";
-
-    // Testing chat opened by slash
-    private static boolean chatOpenedBySlash = false;
 
     // User bio
     private String userBio = "";
@@ -78,8 +76,18 @@ public class AeiroMod {
     private final List<Integer> runsCompleted = new ArrayList<Integer>();
     private final List<Integer> runsRequested = new ArrayList<Integer>();
 
-    // Chat queue for mod messages
-    private final Queue<String> chatQueue = new LinkedList<String>();
+    // Delayed chat queue for mod messages
+    private final Queue<QueuedChatMessage> chatQueue = new LinkedList<QueuedChatMessage>();
+
+    // Class to hold a queued chat message with a delay counter.
+    private class QueuedChatMessage {
+        String message;
+        int delay;
+        public QueuedChatMessage(String message, int delay) {
+            this.message = message;
+            this.delay = delay;
+        }
+    }
 
     // Reflection for capturing the chat input field
     private static Field guiChatInputField = null;
@@ -142,10 +150,6 @@ public class AeiroMod {
     // --------------------------------------------------------
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent ev) {
-        // Check if the slash key was pressed
-        if (Keyboard.getEventKey() == Keyboard.KEY_SLASH && Keyboard.getEventKeyState()) {
-            chatOpenedBySlash = true;
-        }
         if (keyOpenGui.isPressed()) {
             openGui();
         }
@@ -157,21 +161,16 @@ public class AeiroMod {
     @SubscribeEvent
     public void onInitGui(GuiScreenEvent.InitGuiEvent.Post e) {
         if (e.gui instanceof GuiChat && !(e.gui instanceof MyGuiChat)) {
+            // Retrieve the default text from the original GuiChat (this will be "/" if slash was pressed)
             GuiChat oldChat = (GuiChat) e.gui;
             String defaultText = "";
             try {
-                // Retrieve the text from the chat input field via reflection
+                // Cast the field to GuiTextField, then get its text
                 GuiTextField chatInput = (GuiTextField) guiChatInputField.get(oldChat);
                 defaultText = chatInput.getText();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            // Only force a slash if the player pressed slash to open chat
-            if (chatOpenedBySlash && defaultText.isEmpty()) {
-                defaultText = "/";
-            }
-            // Reset the flag for future chat openings
-            chatOpenedBySlash = false;
             Minecraft.getMinecraft().displayGuiScreen(new MyGuiChat(defaultText));
         }
     }
@@ -182,10 +181,12 @@ public class AeiroMod {
     // --------------------------------------------------------
     @SideOnly(Side.CLIENT)
     public class MyGuiChat extends GuiChat {
+        // Default constructor calls the parameterized constructor with an empty string
         public MyGuiChat() {
             this("");
         }
 
+        // Constructor that accepts the default chat text
         public MyGuiChat(String defaultText) {
             super(defaultText);
         }
@@ -296,14 +297,20 @@ public class AeiroMod {
     }
 
     // --------------------------------------------------------
-    // Client Tick – send queued mod messages and update notification timer
+    // Client Tick – process queued mod messages and update notification timer
     // --------------------------------------------------------
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent ev) {
         if (ev.phase == TickEvent.Phase.END) {
-            while (!chatQueue.isEmpty()) {
-                String msg = chatQueue.poll();
-                Minecraft.getMinecraft().thePlayer.sendChatMessage("AeiroMod > " + msg);
+            // Process each queued message: decrement delay, send if delay has expired.
+            Iterator<QueuedChatMessage> it = chatQueue.iterator();
+            while (it.hasNext()) {
+                QueuedChatMessage qcm = it.next();
+                qcm.delay--;
+                if (qcm.delay < 0) {
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("AeiroMod > " + qcm.message);
+                    it.remove();
+                }
             }
             if (guiNotificationTimer > 0) {
                 guiNotificationTimer--;
@@ -730,7 +737,8 @@ public class AeiroMod {
     // Chat & Configuration Management
     // --------------------------------------------------------
     public void queueChat(String msg) {
-        chatQueue.add(msg);
+        // Queue the message with a delay of 1 tick
+        chatQueue.add(new QueuedChatMessage(msg, 1));
     }
 
     public void loadConfig() {
