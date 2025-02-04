@@ -130,6 +130,10 @@ Settings such as `carryMode`, `autoCarryMode`, `autoRemoveSemicolons`, and custo
 
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements or bug fixes.
 
+## AeiroMod's Name
+
+"Aeiro" is derived from the ancient greek word **ἀείρω** (aeírō) – meaning "to lift" or "to carry upward."
+
 ## License
 
 [MIT License](LICENSE)
